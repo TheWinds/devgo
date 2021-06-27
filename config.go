@@ -8,7 +8,8 @@ import (
 )
 
 type Config struct {
-	Groups []GroupConfig `toml:"group"`
+	TabEmojis string        `toml:"tab_emojis"`
+	Groups    []GroupConfig `toml:"group"`
 }
 
 type GroupConfig struct {

@@ -70,6 +70,7 @@ func (m *Menu) selectGroup(i int) {
 		}
 	}
 	m.items = items
+	m.selectedIndex = 0
 	m.draw()
 }
 
@@ -103,13 +104,16 @@ func (m *Menu) filter(s string) {
 	m.draw()
 }
 
-var randomEmoij string
+var randomEmoji string
 
-func init() {
+func initTabEmojis(emojis string) {
+	if len(emojis) == 0 {
+		return
+	}
 	rand.Seed(time.Now().Unix())
-	var emoijs = []rune("🐶🐱🐭🦊🐻🐼🐮🐷🐸🐵🦉🦄🐟🐳🐖🐂💥🌈🌞")
-	n := len(emoijs)
-	randomEmoij = string(emoijs[rand.Intn(n)])
+	var emojisRune = []rune(emojis)
+	n := len(emojisRune)
+	randomEmoji = string(emojisRune[rand.Intn(n)])
 }
 
 func (m *Menu) draw() {
@@ -122,7 +126,7 @@ func (m *Menu) draw() {
 		color := termbox.ColorDefault
 		prefix := " "
 		if i == m.selectedGroup {
-			prefix = randomEmoij
+			prefix = randomEmoji
 			color = termbox.ColorLightGreen
 		}
 		tbPrint(2+i*10, 1, color, termbox.ColorDefault, prefix+group)

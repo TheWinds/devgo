@@ -8,6 +8,8 @@ import (
 
 func main() {
 	conf := LoadConfig()
+	initTabEmojis(conf.TabEmojis)
+
 	var items []*MenuItem
 	for _, group := range conf.Groups {
 		for _, item := range group.Items {
