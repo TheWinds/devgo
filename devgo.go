@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"unicode"
 
 	"github.com/nsf/termbox-go"
@@ -8,25 +9,15 @@ import (
 
 func main() {
 	conf := LoadConfig()
-	initTabEmojis(conf.TabEmojis)
-
-	var items []*MenuItem
-	for _, group := range conf.Groups {
-		for _, item := range group.Items {
-			items = append(items, &MenuItem{
-				title: item.Title,
-				cmd:   item.Exec,
-				group: group.Name,
-			})
-		}
-	}
-	m := Menu{Items: items}
+	initTabEmojis(conf)
+	m := initMenu(conf)
 
 	err := termbox.Init()
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	termbox.SetInputMode(termbox.InputEsc)
+
 	m.init()
 	m.draw()
 
@@ -37,7 +28,10 @@ mainloop:
 			switch ev.Key {
 			case termbox.KeyEnter:
 				termbox.Close()
-				m.hit()
+				err := m.hit()
+				if err != nil {
+					log.Fatalln(err)
+				}
 				return
 			case termbox.KeyArrowUp:
 				m.selectPrev()
@@ -58,11 +52,26 @@ mainloop:
 			}
 
 		case termbox.EventError:
-			panic(ev.Err)
+			termbox.Close()
+			log.Fatalln(ev.Err)
 
 		case termbox.EventInterrupt:
 			break mainloop
 		}
 	}
 	termbox.Close()
+}
+
+func initMenu(conf *Config) *Menu {
+	var items []*MenuItem
+	for _, group := range conf.Groups {
+		for _, item := range group.Items {
+			items = append(items, &MenuItem{
+				title: item.Title,
+				cmd:   item.Exec,
+				group: group.Name,
+			})
+		}
+	}
+	return &Menu{Items: items}
 }

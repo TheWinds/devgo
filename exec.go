@@ -13,16 +13,16 @@ import (
 	"golang.org/x/term"
 )
 
-func Exec(command string) {
+func Exec(command string) error {
 	fields := strings.Fields(command)
 	if len(fields) == 0 {
-		return
+		return nil
 	}
 
 	cmd := exec.Command(fields[0], expandEnv(fields[1:])...)
 	ptmx, err := pty.Start(cmd)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	// Make sure to close the pty at the end.
 	defer func() { _ = ptmx.Close() }() // Best effort.
@@ -43,7 +43,7 @@ func Exec(command string) {
 	// Set stdin in raw mode.
 	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }() // Best effort.
 
@@ -51,6 +51,7 @@ func Exec(command string) {
 	// NOTE: The goroutine will keep reading until the next keystroke before returning.
 	go func() { _, _ = io.Copy(ptmx, os.Stdin) }()
 	_, _ = io.Copy(os.Stdout, ptmx)
+	return nil
 }
 
 func expandEnv(s []string) []string {

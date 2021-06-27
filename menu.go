@@ -74,8 +74,8 @@ func (m *Menu) selectGroup(i int) {
 	m.draw()
 }
 
-func (m *Menu) hit() {
-	Exec(m.items[m.selectedIndex].cmd)
+func (m *Menu) hit() error {
+	return Exec(m.items[m.selectedIndex].cmd)
 }
 
 func (m *Menu) filter(s string) {
@@ -106,12 +106,12 @@ func (m *Menu) filter(s string) {
 
 var randomEmoji string
 
-func initTabEmojis(emojis string) {
-	if len(emojis) == 0 {
+func initTabEmojis(conf *Config) {
+	if len(conf.TabEmojis) == 0 {
 		return
 	}
 	rand.Seed(time.Now().Unix())
-	var emojisRune = []rune(emojis)
+	var emojisRune = []rune(conf.TabEmojis)
 	n := len(emojisRune)
 	randomEmoji = string(emojisRune[rand.Intn(n)])
 }
