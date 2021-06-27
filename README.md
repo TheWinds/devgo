@@ -1,7 +1,7 @@
 # devgo
 > a command-line launcher
 
-<img src="screenshots/devgo1.png" alt="devgo" width="250"/> <img src="screenshots/devgo2.png" alt="devgo" width="250"/><img src="screenshots/devgo3.png" alt="devgo" width="250"/>
+<img src="demo.gif" alt="devgo" width="750"/>
 
 ## Install
 
