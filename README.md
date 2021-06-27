@@ -6,7 +6,7 @@
 ## Install
 
 ```shell script
-curl -o- https://github.com/TheWinds/devgo/blob/main/install.sh | bash
+curl -o- https://raw.githubusercontent.com/TheWinds/devgo/main/install.sh | bash
 ```
 
 ## QuickStart
