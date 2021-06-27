@@ -19,7 +19,7 @@ func Exec(command string) {
 		return
 	}
 
-	cmd := exec.Command(fields[0], fields[1:]...)
+	cmd := exec.Command(fields[0], expandEnv(fields[1:])...)
 	ptmx, err := pty.Start(cmd)
 	if err != nil {
 		panic(err)
@@ -51,4 +51,11 @@ func Exec(command string) {
 	// NOTE: The goroutine will keep reading until the next keystroke before returning.
 	go func() { _, _ = io.Copy(ptmx, os.Stdin) }()
 	_, _ = io.Copy(os.Stdout, ptmx)
+}
+
+func expandEnv(s []string) []string {
+	for i, e := range s {
+		s[i] = os.ExpandEnv(e)
+	}
+	return s
 }
