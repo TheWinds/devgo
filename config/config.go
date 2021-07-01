@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/thewinds/devgo/utils"
 	"log"
 	"os"
 	"os/exec"
@@ -23,6 +24,7 @@ type GroupItemConfig struct {
 }
 
 func LoadConfig() *Config {
+	UpdateOldConfig()
 	if yaml, ok := FindYaml(); ok {
 		return LoadYamlConfig(yaml)
 	} else {
@@ -43,5 +45,20 @@ func VimConfig() {
 	err := cmd.Run()
 	if err != nil {
 		log.Fatalln("vim config Error")
+	}
+}
+
+//UpdateOldConfig update .devgo to .devgo.toml
+// We will delete this function in the future
+func UpdateOldConfig() {
+	oldPath := os.ExpandEnv(`$HOME/.devgo`)
+	newPath := os.ExpandEnv(`$HOME/.devgo.toml`)
+	if !utils.Exists(oldPath) {
+		return
+	}
+
+	err := os.Rename(oldPath, newPath)
+	if err != nil {
+		log.Fatal(err)
 	}
 }

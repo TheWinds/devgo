@@ -12,13 +12,13 @@ import (
 	"unicode"
 )
 
-type MenuMode int
+//type MenuMode int
 type Mode uint8
 
-const (
-	EasyMode MenuMode = iota
-	VimMode
-)
+//const (
+//	EasyMode MenuMode = iota
+//	VimMode
+//)
 
 const (
 	NormalMode = iota
@@ -43,11 +43,13 @@ type Menu struct {
 	Mode          Mode
 }
 
-func (m *Menu) Run(mode MenuMode) {
+func (m *Menu) Run(mode string) {
 	switch mode {
-	case VimMode:
+	case "vim":
 		m.vimMode()
-	case EasyMode:
+	case "easy":
+		m.easyMode()
+	default:
 		m.easyMode()
 	}
 }

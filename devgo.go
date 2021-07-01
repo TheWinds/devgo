@@ -19,7 +19,7 @@ func main() {
 
 	m.init()
 	m.draw()
-	m.Run(VimMode)
+	m.Run(conf.Mode)
 	termbox.Close()
 }
 

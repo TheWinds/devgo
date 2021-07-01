@@ -24,4 +24,4 @@ exec="open https://github.com"
 name="devgo"
 [[group.item]]
 title="edit config"
-exec="vim $HOME/.devgo"
+exec="vim $HOME/.devgo.toml"
