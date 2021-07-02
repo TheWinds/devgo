@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/thewinds/devgo/utils"
 	"log"
 	"os"
 	"os/exec"
@@ -53,7 +52,7 @@ func VimConfig() {
 func UpdateOldConfig() {
 	oldPath := os.ExpandEnv(`$HOME/.devgo`)
 	newPath := os.ExpandEnv(`$HOME/.devgo.toml`)
-	if !utils.Exists(oldPath) {
+	if !exists(oldPath) {
 		return
 	}
 
@@ -61,4 +60,15 @@ func UpdateOldConfig() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path) //os.Stat获取文件信息
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		return false
+	}
+	return true
 }

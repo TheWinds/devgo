@@ -5,9 +5,8 @@ group:
   -
     name: "tools"
     item:
-      - {title: "hello", exec: "echo hello devgo"}
-      - {title: "date now", exec: "date"}
-
+      - { title: "hello", exec: "echo hello devgo" }
+      - { title: "date now", exec: "date" }
   -
     name: "website"
     item:
