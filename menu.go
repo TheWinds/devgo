@@ -1,13 +1,28 @@
 package main
 
 import (
+	"github.com/mattn/go-runewidth"
+	"github.com/nsf/termbox-go"
+	"github.com/thewinds/devgo/config"
+	"log"
 	"math/rand"
 	"sort"
 	"strings"
 	"time"
+	"unicode"
+)
 
-	"github.com/mattn/go-runewidth"
-	"github.com/nsf/termbox-go"
+//type MenuMode int
+type Mode uint8
+
+//const (
+//	EasyMode MenuMode = iota
+//	VimMode
+//)
+
+const (
+	NormalMode = iota
+	FindMode
 )
 
 type MenuItem struct {
@@ -25,6 +40,141 @@ type Menu struct {
 	selectedIndex int
 	selectedGroup int
 	input         string
+	Mode          Mode
+}
+
+func (m *Menu) Run(mode string) {
+	switch mode {
+	case "vim":
+		m.vimMode()
+	case "easy":
+		m.easyMode()
+	default:
+		m.easyMode()
+	}
+}
+
+func (m *Menu) easyMode() {
+mainloop:
+	for {
+		switch ev := termbox.PollEvent(); ev.Type {
+		case termbox.EventKey:
+			switch ev.Key {
+			case termbox.KeyEnter:
+				termbox.Close()
+				err := m.hit()
+				if err != nil {
+					log.Fatalln(err)
+				}
+				return
+			case termbox.KeyArrowUp:
+				m.selectPrev()
+			case termbox.KeyArrowDown:
+				m.selectNext()
+			case termbox.KeyArrowLeft:
+				m.selectPreGroup()
+			case termbox.KeyArrowRight, termbox.KeyTab:
+				m.selectNextGroup()
+			case termbox.KeyEsc, termbox.KeyCtrlC, termbox.KeyCtrlD:
+				break mainloop
+			case termbox.KeyBackspace, termbox.KeyBackspace2, termbox.KeyDelete:
+				m.filter("")
+			default:
+				if unicode.IsLetter(ev.Ch) {
+					m.filter(string(ev.Ch))
+				}
+			}
+
+		case termbox.EventError:
+			termbox.Close()
+			log.Fatalln(ev.Err)
+
+		case termbox.EventInterrupt:
+			break mainloop
+		}
+	}
+}
+
+func (m *Menu) vimMode() {
+mainloop:
+	for {
+		switch ev := termbox.PollEvent(); ev.Type {
+		case termbox.EventKey:
+			switch ev.Key {
+			case termbox.KeyEnter:
+				termbox.Close()
+				err := m.hit()
+				if err != nil {
+					log.Fatalln(err)
+				}
+				return
+			case termbox.KeyArrowUp:
+				m.selectPrev()
+			case termbox.KeyArrowDown:
+				m.selectNext()
+			case termbox.KeyArrowLeft:
+				m.selectPreGroup()
+			case termbox.KeyArrowRight, termbox.KeyTab:
+				m.selectNextGroup()
+			case termbox.KeyEsc, termbox.KeyCtrlC, termbox.KeyCtrlD:
+				break mainloop
+			case termbox.KeyBackspace, termbox.KeyBackspace2, termbox.KeyDelete:
+				m.filter("")
+			default:
+				switch ev.Ch {
+				case 'j':
+					m.selectNext()
+				case 'k':
+					m.selectPrev()
+				case 'h':
+					m.selectPreGroup()
+				case 'l':
+					m.selectNextGroup()
+				case 'i':
+					termbox.Close()
+					config.VimConfig()
+					err := termbox.Init()
+					if err != nil {
+						log.Fatalln(err)
+					}
+					m.Update(config.LoadConfig())
+				case '/':
+					m.Mode = FindMode
+					m.draw()
+				findLoop:
+					for {
+						switch ev := termbox.PollEvent(); ev.Key {
+						case termbox.KeyEsc:
+							break findLoop
+						case termbox.KeyEnter:
+							termbox.Close()
+							err := m.hit()
+							if err != nil {
+								log.Fatalln(err)
+							}
+							return
+						case termbox.KeyBackspace, termbox.KeyBackspace2, termbox.KeyDelete:
+							m.filter("")
+						default:
+							if ev.Type == 0 {
+								m.filter(string(ev.Ch))
+							}
+						}
+					}
+					m.Mode = NormalMode
+					m.draw()
+				}
+
+			}
+
+		case termbox.EventError:
+			termbox.Close()
+			log.Fatalln(ev.Err)
+
+		case termbox.EventInterrupt:
+			break mainloop
+		}
+	}
 }
 
 func (m *Menu) init() {
@@ -106,7 +256,7 @@ func (m *Menu) filter(s string) {
 
 var randomEmoji string
 
-func initTabEmojis(conf *Config) {
+func initTabEmojis(conf *config.Config) {
 	if len(conf.TabEmojis) == 0 {
 		return
 	}
@@ -142,9 +292,26 @@ func (m *Menu) draw() {
 		}
 		tbPrint(1, i+3, color, termbox.ColorDefault, prefix+item.title)
 	}
+	if m.Mode == FindMode {
+		tbPrint(1, h-2, termbox.ColorWhite, termbox.ColorDefault, "/"+m.input)
+		tbPrint(w-10, h-2, termbox.ColorWhite, termbox.ColorDefault, "DevGo")
+	}
+}
 
-	tbPrint(1, h-2, termbox.ColorWhite, termbox.ColorDefault, "/"+m.input)
-	tbPrint(w-10, h-2, termbox.ColorWhite, termbox.ColorDefault, "DevGo")
+func (m *Menu) Update(conf *config.Config) {
+	var items []*MenuItem
+	for _, group := range conf.Groups {
+		for _, item := range group.Items {
+			items = append(items, &MenuItem{
+				title: item.Title,
+				cmd:   item.Exec,
+				group: group.Name,
+			})
+		}
+	}
+	m.Items = items
+	m.init()
+	m.draw()
 }
 
 func tbPrint(x, y int, fg, bg termbox.Attribute, msg string) {

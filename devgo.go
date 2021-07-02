@@ -1,14 +1,13 @@
 package main
 
 import (
-	"log"
-	"unicode"
-
 	"github.com/nsf/termbox-go"
+	"github.com/thewinds/devgo/config"
+	"log"
 )
 
 func main() {
-	conf := LoadConfig()
+	conf := config.LoadConfig()
 	initTabEmojis(conf)
 	m := initMenu(conf)
 
@@ -20,49 +19,11 @@ func main() {
 
 	m.init()
 	m.draw()
-
-mainloop:
-	for {
-		switch ev := termbox.PollEvent(); ev.Type {
-		case termbox.EventKey:
-			switch ev.Key {
-			case termbox.KeyEnter:
-				termbox.Close()
-				err := m.hit()
-				if err != nil {
-					log.Fatalln(err)
-				}
-				return
-			case termbox.KeyArrowUp:
-				m.selectPrev()
-			case termbox.KeyArrowDown:
-				m.selectNext()
-			case termbox.KeyArrowLeft:
-				m.selectPreGroup()
-			case termbox.KeyArrowRight:
-				m.selectNextGroup()
-			case termbox.KeyEsc, termbox.KeyCtrlC, termbox.KeyCtrlD:
-				break mainloop
-			case termbox.KeyBackspace, termbox.KeyBackspace2, termbox.KeyDelete:
-				m.filter("")
-			default:
-				if unicode.IsLetter(ev.Ch) {
-					m.filter(string(ev.Ch))
-				}
-			}
-
-		case termbox.EventError:
-			termbox.Close()
-			log.Fatalln(ev.Err)
-
-		case termbox.EventInterrupt:
-			break mainloop
-		}
-	}
+	m.Run(conf.Mode)
 	termbox.Close()
 }
 
-func initMenu(conf *Config) *Menu {
+func initMenu(conf *config.Config) *Menu {
 	var items []*MenuItem
 	for _, group := range conf.Groups {
 		for _, item := range group.Items {

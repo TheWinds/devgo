@@ -1,0 +1,18 @@
+tab_emojis: "🐶🐱🐭🦊🐻🐼🐮🐷🐸🐵🦉🦄🐟🐳🐖🐂💥🌈🌞"
+mode: "vim" #`vim` or `easy`
+
+group:
+  -
+    name: "tools"
+    item:
+      - { title: "hello", exec: "echo hello devgo" }
+      - { title: "date now", exec: "date" }
+  -
+    name: "website"
+    item:
+      - { title: "github", exec: "open https://github.com" }
+
+  -
+    name: "devgo"
+    item:
+      - { title: "edit config", exec: "vim $HOME/.devgo.yaml" }
