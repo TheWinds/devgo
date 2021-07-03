@@ -5,8 +5,14 @@
 
 ## Install
 
+### latest version
 ```shell script
 curl -o- https://raw.githubusercontent.com/TheWinds/devgo/main/install.sh | bash
+```
+
+### special version
+```shell script
+curl -o- https://raw.githubusercontent.com/TheWinds/devgo/main/install.sh | bash -s 1.0.0
 ```
 
 ## QuickStart
@@ -21,7 +27,7 @@ dg
 * exit `ctrl+c` `ctrl+d` `esc`
 
 ## Config
-> file path: ~/.devgo
+> file path: ~/.devgo.toml
 ```toml
 # random group tab name preifx emoji
 tab_emojis="🐶🐱🐭🦊🐻🐼🐮🐷🐸🐵🦉🦄🐟🐳🐖🐂💥🌈🌞"
