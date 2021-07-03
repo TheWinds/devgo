@@ -1,0 +1,33 @@
+name: "build release"
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  releases-matrix:
+    name: Release Go Binary
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin]
+        goarch: [amd64]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set APP_VERSION env
+        run: echo APP_VERSION=$(basename ${GITHUB_REF}) >> ${GITHUB_ENV}
+      - name: Set BUILD_TIME env
+        run: echo BUILD_TIME=$(date --iso-8601=seconds) >> ${GITHUB_ENV}
+      - name: Environment Printer
+        uses: managedkaos/print-env@v1.0
+
+      - uses: wangyoucao577/go-release-action@v1.18
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          goversion: "https://golang.org/dl/go1.16.5.linux-amd64.tar.gz"
+          binary_name: "dg"
+          extra_files: LICENSE README.md
+          ldflags: -X "main.appVersion=${{ env.APP_VERSION }}" -X "main.buildTime=${{ env.BUILD_TIME }}" -X main.gitCommit=${{ github.sha }}

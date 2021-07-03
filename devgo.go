@@ -3,10 +3,17 @@ package main
 import (
 	"github.com/nsf/termbox-go"
 	"github.com/thewinds/devgo/config"
+
+	"flag"
 	"log"
 )
 
 func main() {
+	flag.Parse()
+	if showVersion() {
+		return
+	}
+
 	conf := config.LoadConfig()
 	initTabEmojis(conf)
 	m := initMenu(conf)
