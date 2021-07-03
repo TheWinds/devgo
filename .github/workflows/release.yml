@@ -29,5 +29,4 @@ jobs:
           goarch: ${{ matrix.goarch }}
           goversion: "https://golang.org/dl/go1.16.5.linux-amd64.tar.gz"
           binary_name: "dg"
-          extra_files: LICENSE README.md
           ldflags: -X "main.appVersion=${{ env.APP_VERSION }}" -X "main.buildTime=${{ env.BUILD_TIME }}" -X main.gitCommit=${{ github.sha }}
